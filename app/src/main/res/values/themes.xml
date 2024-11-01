@@ -1,0 +1,35 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.BraiSee" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/white_light</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:textColorTertiary">@color/black</item>
+        <item name="colorSecondaryContainer">@color/pastel</item>
+        <item name="colorOnSecondaryContainer">@color/blue</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
+        <item name="colorSurfaceContainer">@color/pastel</item>
+        <item name="colorOnSurface">@color/white_light</item>
+        <item name="iconTint">@color/white_light</item>
+    </style>
+
+    <style name="Theme.BraiSee" parent="Base.Theme.BraiSee" />
+
+
+    <style name="TextFontLight">
+        <item name="android:fontFamily">@font/poppins_light</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/blue</item>
+    </style>
+
+    <style name="TextFontBold">
+        <item name="android:fontFamily">@font/poppins_bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/blue</item>
+    </style>
+
+    <style name="TextFontItalic">
+        <item name="android:fontFamily">@font/poppins_italic</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/blue</item>
+    </style>
+</resources>

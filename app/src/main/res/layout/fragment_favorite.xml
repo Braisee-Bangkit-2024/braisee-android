@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="8dp"
+    android:layout_marginBottom="?attr/actionBarSize"
     tools:context=".ui.favorite.FavoriteFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,7 +21,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:itemCount="20"
+            tools:listitem="@layout/list_history"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

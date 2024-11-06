@@ -71,7 +71,6 @@
         android:layout_height="0dp"
         android:layout_marginBottom="?attr/actionBarSize"
         android:layout_margin="8dp"
-        android:background="@drawable/custom_retangle"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
         app:layout_constraintBottom_toBottomOf="parent">
 

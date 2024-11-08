@@ -1,6 +1,5 @@
 package com.braille.braisee.ui.analyze
 
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,18 +23,17 @@ class AnalyzeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Ambil URI gambar dari argumen dan tampilkan di ImageView
-        val imageUriString = arguments?.getString("imageUri")
-        if (imageUriString != null) {
-            val imageUri = Uri.parse(imageUriString)
+        // Menggunakan SafeArgs untuk mengambil imageUri yang diteruskan dari HomeFragment
+        val args = AnalyzeFragmentArgs.fromBundle(requireArguments())
+        val imageUriString = args.imageUri // Ambil imageUri yang diterima
+        imageUriString.let {
+            val imageUri = Uri.parse(it)
             displayImage(imageUri)
         }
     }
 
-    private fun displayImage(uri: Uri) {
-        val inputStream = requireContext().contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        binding.imageView2.setImageBitmap(bitmap) // Pastikan ID ImageView di layout sesuai
+    private fun displayImage(imageUri: Uri) {
+        binding.imageView2.setImageURI(imageUri)
     }
 
     override fun onDestroyView() {

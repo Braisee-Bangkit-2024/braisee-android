@@ -15,9 +15,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/ic_braisees"
+        android:icon="@drawable/logo_braisees"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_braisees"
+        android:roundIcon="@drawable/logo_braisees"
         android:supportsRtl="true"
         android:theme="@style/Theme.BraiSee"
         tools:targetApi="31">

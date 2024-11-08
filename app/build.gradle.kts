@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
     id("com.google.devtools.ksp")
+    id ("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -73,4 +74,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.0")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.8.0")
 }

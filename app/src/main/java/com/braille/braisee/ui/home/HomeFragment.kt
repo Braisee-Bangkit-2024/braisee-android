@@ -1,6 +1,7 @@
 package com.braille.braisee.ui.home
 
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -13,12 +14,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.braille.braisee.R
+import androidx.navigation.fragment.findNavController
 import com.braille.braisee.databinding.FragmentHomeBinding
-import com.braille.braisee.ui.analyze.AnalyzeFragment
+import com.yalantis.ucrop.UCrop
+import java.io.File
 
 class HomeFragment : Fragment() {
+
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var currentImageUri: Uri? = null
@@ -48,7 +52,7 @@ class HomeFragment : Fragment() {
     ) { uri: Uri? ->
         if (uri != null) {
             currentImageUri = uri
-            navigateToAnalyzeFragment(uri)
+            startUCrop(uri) // Memulai UCrop setelah memilih gambar dari galeri
         } else {
             Log.d("HomeFragment", "No media selected from gallery")
         }
@@ -83,22 +87,37 @@ class HomeFragment : Fragment() {
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
         if (success && currentImageUri != null) {
-            navigateToAnalyzeFragment(currentImageUri!!)
+            startUCrop(currentImageUri!!) // Memulai UCrop setelah mengambil gambar dari kamera
         } else {
             Log.d("HomeFragment", "Image capture failed or canceled")
         }
     }
 
-    private fun navigateToAnalyzeFragment(uri: Uri) {
-        val analyzeFragment = AnalyzeFragment()
-        val bundle = Bundle().apply {
-            putString("imageUri", uri.toString())
+    private fun startUCrop(sourceUri: Uri) {
+        val destinationUri = Uri.fromFile(File(requireContext().cacheDir, "cropped_image.jpg"))
+        UCrop.of(sourceUri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(1000, 1000)
+            .start(requireContext(), this)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == UCrop.REQUEST_CROP && resultCode == AppCompatActivity.RESULT_OK) {
+            val resultUri = UCrop.getOutput(data!!)
+            resultUri?.let {
+                navigateToAnalyzeFragment(it) // Mengirim URI hasil crop ke AnalyzeFragment
+            } ?: showToast("Failed to crop image")
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(data!!)
+            showToast("Crop error: ${cropError?.message}")
         }
-        analyzeFragment.arguments = bundle
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, analyzeFragment)
-            .addToBackStack(null)
-            .commit()
+    }
+
+    private fun navigateToAnalyzeFragment(uri: Uri) {
+        val action = HomeFragmentDirections.actionHomeToAnalyze(uri.toString())
+        findNavController().navigate(action) // Menggunakan NavController dan SafeArgs untuk navigasi
     }
 
     private fun createImageUri(): Uri? {
@@ -112,5 +131,9 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

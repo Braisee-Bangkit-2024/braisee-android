@@ -75,6 +75,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.0")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.8.0")
+    implementation (libs.androidx.navigation.fragment.ktx.v280)
+    implementation (libs.androidx.navigation.ui.ktx.v280)
 }

@@ -10,8 +10,8 @@
         android:icon="@drawable/learn"
         android:title="@string/learn" />
     <item
-        android:id="@+id/navigation_history"
+        android:id="@+id/navigation_favorite"
         android:icon="@drawable/history"
-        android:title="@string/history" />
+        android:title="@string/favorite" />
 
 </menu>

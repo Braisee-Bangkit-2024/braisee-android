@@ -24,7 +24,13 @@
     <string name="exit_confirm">Apakah Anda yakin ingin keluar?</string>
     <string name="ya">Ya</string>
     <string name="tidak">Tidak</string>
+    <string name="image_classifier_failed">Image classifier failed to initialize. See error logs for details</string>
+    <string name="scan_failed">Scan failed. Try again.</string>
+    <string name="save_failed">Save failed. Try again.</string>
+    <string name="result_text">Label: %1$s\nConfidence: %.2f%%\nInference Time: %3$d ms</string>
+    <string name="result_no_results">No results available</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sample_label">Sample Label</string>
 </resources>

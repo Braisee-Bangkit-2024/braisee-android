@@ -54,6 +54,8 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.paging.common.android)
+    implementation (libs.tensorflow.lite.task.vision.v040)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

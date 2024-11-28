@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.braille.braisee.data.AnalyzeHistory
 import com.braille.braisee.databinding.FragmentAnalyzeBinding
 import com.braille.braisee.helper.ImageClassifierHelper
 import java.util.Locale
@@ -21,6 +22,7 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private lateinit var imageClassifierHelper: ImageClassifierHelper
     private lateinit var textToSpeech: TextToSpeech
+    private lateinit var viewModel: AnalyzeViewModel
 
     companion object {
         private const val TAG = "AnalyzeFragment"
@@ -59,6 +61,9 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         // Ketika tombol Text-to-Speech ditekan
         binding.buttonTts.setOnClickListener {
             speakResult()
+        }
+
+        binding.buttonSave.setOnClickListener {
         }
     }
 

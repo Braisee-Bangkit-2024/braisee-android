@@ -23,6 +23,11 @@ interface AnalyzeHistoryDao {
     @Query("DELETE FROM analyze_history WHERE favorite = 1")
     suspend fun deleteFavorites()
 
+
     @Query("DELETE FROM analyze_history")
     suspend fun deleteAllHistory()
+
+    @Query("SELECT EXISTS(SELECT * FROM analyze_history WHERE id = :id)")
+    fun checkIsFavorite(id: String): LiveData<Boolean>
+
 }

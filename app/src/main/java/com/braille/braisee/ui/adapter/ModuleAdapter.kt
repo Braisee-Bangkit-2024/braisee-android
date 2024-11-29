@@ -1,29 +1,33 @@
 package com.braille.braisee.ui.adapter
 
 import android.os.Bundle
-import androidx.navigation.findNavController
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.braille.braisee.R
 import com.braille.braisee.data.learn.Module
+import com.braille.braisee.databinding.ListModuleBinding
 
 class ModuleAdapter(private val listModule: ArrayList<Module>) :
     RecyclerView.Adapter<ModuleAdapter.ModuleViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_module, parent, false)
-        return ModuleViewHolder(view)
+        // Inflate the layout using View Binding
+        val binding = ListModuleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ModuleViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ModuleViewHolder, position: Int) {
         val module = listModule[position]
-        holder.title.text = module.title
-        holder.description.text = module.description
+        with(holder.binding) {
+            // Set title and description
+            tvJudulLearn.text = module.title
+            tvDeskripsiLearn.text = module.description
+        }
 
-        holder.itemView.setOnClickListener {
+        // Handle item click to navigate with arguments
+        holder.binding.root.setOnClickListener {
             val bundle = Bundle().apply {
                 putParcelable("module", module)
             }
@@ -33,8 +37,5 @@ class ModuleAdapter(private val listModule: ArrayList<Module>) :
 
     override fun getItemCount(): Int = listModule.size
 
-    class ModuleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.tv_judul_learn)
-        val description: TextView = itemView.findViewById(R.id.tv_deskripsi_learn)
-    }
+    class ModuleViewHolder(val binding: ListModuleBinding) : RecyclerView.ViewHolder(binding.root)
 }

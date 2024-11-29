@@ -5,80 +5,87 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
 import android.content.pm.ActivityInfo
-import com.braille.braisee.R
 import com.braille.braisee.data.learn.Module
+import com.braille.braisee.databinding.FragmentDetailBinding
 
 class DetailFragment : Fragment() {
 
     private var fullscreenView: View? = null
     private var fullscreenCallback: WebChromeClient.CustomViewCallback? = null
+    private var _binding: FragmentDetailBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_detail, container, false)
+    ): View {
+        // Inflate the layout using View Binding
+        _binding = FragmentDetailBinding.inflate(inflater, container, false)
 
-        val title = view.findViewById<TextView>(R.id.tv_judul_detail)
-        val description = view.findViewById<TextView>(R.id.tv_deskripsi_detail)
-        val webView = view.findViewById<WebView>(R.id.wv_detail)
-
+        // Get the module passed through arguments
         val module = arguments?.getParcelable<Module>("module")
 
         module?.let {
-            title.text = it.title
-            description.text = it.description
+            // Set title and description
+            binding.tvJudulDetail.text = it.title
+            binding.tvDeskripsiDetail.text = it.description
 
-            // Enable JavaScript and DOM Storage
-            webView.settings.javaScriptEnabled = true
-            webView.settings.domStorageEnabled = true
+            // Configure WebView
+            with(binding.wvDetail) {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
 
-            // Fullscreen Mode
-            webView.webChromeClient = object : WebChromeClient() {
-                override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-                    val activity = activity as? AppCompatActivity ?: return
-                    if (fullscreenView != null) {
-                        callback?.onCustomViewHidden()
-                        return
+                // Fullscreen WebView configuration
+                webChromeClient = object : WebChromeClient() {
+                    override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                        val activity = activity as? AppCompatActivity ?: return
+                        if (fullscreenView != null) {
+                            callback?.onCustomViewHidden()
+                            return
+                        }
+                        fullscreenView = view
+                        fullscreenCallback = callback
+
+                        // Enter fullscreen mode
+                        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        activity.supportActionBar?.hide()
+                        activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+
+                        activity.findViewById<ViewGroup>(android.R.id.content).addView(view)
                     }
-                    fullscreenView = view
-                    fullscreenCallback = callback
 
-                    // Enter Fullscreen
-                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    activity.supportActionBar?.hide()
-                    activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+                    override fun onHideCustomView() {
+                        val activity = activity as? AppCompatActivity ?: return
+                        if (fullscreenView == null) return
 
-                    activity.findViewById<ViewGroup>(android.R.id.content).addView(view)
+                        // Exit fullscreen mode
+                        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        activity.supportActionBar?.show()
+                        activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+
+                        activity.findViewById<ViewGroup>(android.R.id.content).removeView(fullscreenView)
+                        fullscreenView = null
+                        fullscreenCallback?.onCustomViewHidden()
+                        fullscreenCallback = null
+                    }
                 }
 
-                override fun onHideCustomView() {
-                    val activity = activity as? AppCompatActivity ?: return
-                    if (fullscreenView == null) return
-
-                    // Exit Fullscreen
-                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    activity.supportActionBar?.show()
-                    activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-
-                    activity.findViewById<ViewGroup>(android.R.id.content).removeView(fullscreenView)
-                    fullscreenView = null
-                    fullscreenCallback?.onCustomViewHidden()
-                    fullscreenCallback = null
-                }
+                // Load YouTube video
+                val videoUrl =
+                    "<iframe width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/${extractYouTubeId(it.ytLink)}\" frameborder=\"0\" allowfullscreen></iframe>"
+                loadData(videoUrl, "text/html", "utf-8")
             }
-
-            // Embed YouTube Video
-            val videoUrl = "<iframe width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/${extractYouTubeId(it.ytLink)}\" frameborder=\"0\" allowfullscreen></iframe>"
-            webView.loadData(videoUrl, "text/html", "utf-8")
         }
 
-        return view
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // Clear binding reference to avoid memory leaks
     }
 
     // Extract YouTube video ID from URL

@@ -20,7 +20,10 @@ navigationUiKtx = "2.8.0"
 retrofit = "2.11.0"
 roomRuntime = "2.6.1"
 tensorflowLiteTaskVision = "0.4.4"
+tensorflowLiteTaskVisionVersion = "0.4.0"
 ucrop = "2.2.8"
+pagingCommonAndroid = "3.3.4"
+litertSupportApi = "1.0.1"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
@@ -49,7 +52,10 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 tensorflow-lite-metadata = { module = "org.tensorflow:tensorflow-lite-metadata", version.ref = "tensorflowLiteTaskVision" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteTaskVision" }
 tensorflow-lite-task-vision = { module = "org.tensorflow:tensorflow-lite-task-vision", version.ref = "tensorflowLiteTaskVision" }
+tensorflow-lite-task-vision-v040 = { module = "org.tensorflow:tensorflow-lite-task-vision", version.ref = "tensorflowLiteTaskVisionVersion" }
 ucrop = { module = "com.github.yalantis:ucrop", version.ref = "ucrop" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
+litert-support-api = { group = "com.google.ai.edge.litert", name = "litert-support-api", version.ref = "litertSupportApi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

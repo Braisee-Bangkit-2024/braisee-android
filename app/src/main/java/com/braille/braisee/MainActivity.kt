@@ -31,17 +31,9 @@ class MainActivity : AppCompatActivity() {
         binding.navView.setupWithNavController(navController)
 
         // Add a listener to change the action bar visibility based on the destination
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.navigation_analyze -> {
-                    supportActionBar?.hide() // Hide the action bar for AnalyzeFragment
-                    binding.navView.visibility = View.GONE // Optionally hide the bottom nav bar
-                }
-                else -> {
-                    supportActionBar?.show() // Show the action bar for other fragments
-                    binding.navView.visibility = View.VISIBLE // Show the bottom nav bar for other fragments
-                }
-            }
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            supportActionBar?.show() // Tampilkan ActionBar untuk semua fragment
+            binding.navView.visibility = View.VISIBLE // Tampilkan BottomNavigationView untuk semua fragment
         }
 
         // Handle the back button behavior

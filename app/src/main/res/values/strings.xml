@@ -33,4 +33,44 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sample_label">Sample Label</string>
+    <string name="module">Module</string>
+    <string name="pemblajaran_braile">Pemblajaran Braile</string>
+
+
+    <string-array name="list_module">
+        <item>Module 1</item>
+        <item>Module 2</item>
+        <item>Module 3</item>
+        <item>Module 4</item>
+        <item>Module 5</item>
+    </string-array>
+
+    <string-array name="list_deskripsi">
+        <item>Pemblajaran Tentang apa itu braile</item>
+        <item>Pemblajaran Tentang jenis braile</item>
+        <item>Pemblajaran Tentang apa itu braile</item>
+        <item>Pemblajaran Tentang apa itu braile</item>
+        <item>Pemblajaran Tentang apa itu braile</item>
+    </string-array>
+
+    <string-array name="list_ytlink">
+        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
+        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
+        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
+        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
+        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
+    </string-array>
+
+
+
+
+
+
+
+
+
+
 </resources>
+
+
+

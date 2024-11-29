@@ -1,5 +1,7 @@
 package com.braille.braisee.ui.analyze
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -10,10 +12,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.braille.braisee.databinding.FragmentAnalyzeBinding
 import com.braille.braisee.helper.ImageClassifierHelper
-import org.tensorflow.lite.task.vision.classifier.Classifications
 import java.util.Locale
 
-class AnalyzeFragment : Fragment(), ImageClassifierHelper.ClassifierListener, TextToSpeech.OnInitListener {
+class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
+
     private var _binding: FragmentAnalyzeBinding? = null
     private val binding get() = _binding!!
 
@@ -46,15 +48,12 @@ class AnalyzeFragment : Fragment(), ImageClassifierHelper.ClassifierListener, Te
         // Menampilkan gambar yang dipilih
         displayImage(imageUri)
 
-        // Inisialisasi ImageClassifierHelper
-        imageClassifierHelper = ImageClassifierHelper(
-            context = requireContext(),
-            classifierListener = this // Mengimplementasikan callback listener
-        )
+        // Inisialisasi ImageClassifierInterpreter
+        imageClassifierHelper = ImageClassifierHelper(requireContext())
 
         // Ketika tombol analisis ditekan
         binding.buttonAnalyz.setOnClickListener {
-            imageClassifierHelper.classifyStaticImage(imageUri)
+            classifyImage(imageUri)
         }
 
         // Ketika tombol Text-to-Speech ditekan
@@ -76,32 +75,22 @@ class AnalyzeFragment : Fragment(), ImageClassifierHelper.ClassifierListener, Te
         }
     }
 
-    // Callback hasil klasifikasi
-    override fun onResults(results: List<Classifications>?, inferenceTime: Long) {
-        if (results.isNullOrEmpty()) {
-            binding.tvResult.text = "No results found"
-            Log.d(TAG, "No classifications returned.")
-            return
-        }
-
-        // Mengambil hasil klasifikasi terbaik
-        val topResult = results[0].categories.firstOrNull()
-        if (topResult != null) {
-            val label = topResult.label
-            val confidence = String.format("%.2f%%", topResult.score * 100)
-            val resultText = "Label: $label\nConfidence: $confidence"
-            binding.tvResult.text = resultText
-            Log.d(TAG, "Classification Result: $resultText")
-        } else {
-            binding.tvResult.text = "No top result found"
-            Log.d(TAG, "No top result found.")
+    private fun classifyImage(imageUri: Uri) {
+        val bitmap = getBitmapFromUri(imageUri)
+        bitmap?.let {
+            val result = imageClassifierHelper.classifyImage(it)
+            binding.tvResult.text = result
         }
     }
 
-    override fun onError(error: String) {
-        // Menampilkan error di log dan UI
-        binding.tvResult.text = "Error: $error"
-        Log.e(TAG, error)
+    private fun getBitmapFromUri(imageUri: Uri): Bitmap? {
+        return try {
+            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
+            inputStream?.let { BitmapFactory.decodeStream(it) }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting bitmap from URI: ${e.message}")
+            null
+        }
     }
 
     override fun onInit(status: Int) {
@@ -129,5 +118,6 @@ class AnalyzeFragment : Fragment(), ImageClassifierHelper.ClassifierListener, Te
             textToSpeech.stop()
             textToSpeech.shutdown()
         }
+        imageClassifierHelper.close() // Menutup model saat fragment dihancurkan
     }
 }

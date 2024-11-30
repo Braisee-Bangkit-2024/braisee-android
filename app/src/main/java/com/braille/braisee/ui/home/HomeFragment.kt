@@ -67,23 +67,6 @@ class HomeFragment : Fragment() {
         // Listener untuk tombol galeri dan kamera
         binding.scanGallery.setOnClickListener { startGallery() }
         binding.scanCamera.setOnClickListener { requestCameraPermission() }
-//        val layoutManager = LinearLayoutManager(context)
-//        binding.recyclerView.layoutManager = layoutManager
-//        val itemDecoration = DividerItemDecoration(context, layoutManager.orientation)
-//        binding.recyclerView.addItemDecoration(itemDecoration)
-//
-//        val factory = ViewModelFactory.getInstance(requireActivity())
-//        viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
-//
-//        val adapter = HistoryListAdapter{
-//            analyzeHistory ->
-//            viewModel.
-//        }
-//        binding.recyclerView.adapter = adapter
-
-//        viewModel.listHistory.observe(viewLifecycleOwner) { historyList ->
-//            adapter.setData(historyList)
-//        }
 
 
     }

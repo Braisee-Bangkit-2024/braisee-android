@@ -1,5 +1,6 @@
 package com.braille.braisee.ui.home
 
+import android.app.Application
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,8 +17,13 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.braille.braisee.data.AnalyzeHistory
 import com.braille.braisee.databinding.FragmentHomeBinding
+import com.braille.braisee.factory.ViewModelFactory
+import com.braille.braisee.ui.adapter.HistoryListAdapter
 import com.yalantis.ucrop.UCrop
 import java.io.File
 
@@ -26,6 +32,12 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var currentImageUri: Uri? = null
+    private lateinit var viewModel: HomeViewModel
+    private lateinit var adapter: HistoryListAdapter
+
+    companion object {
+        private const val TAG = "HomeFragment"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,9 +50,51 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val factory = ViewModelFactory.getInstance(requireContext())
+        viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
+
+        // Setup RecyclerView
+        setupRecyclerView()
+
+        // Observe LiveData untuk daftar history
+        viewModel.allHistory.observe(viewLifecycleOwner) { historyList ->
+            adapter.setData(historyList)
+        }
+
         // Listener untuk tombol galeri dan kamera
         binding.scanGallery.setOnClickListener { startGallery() }
         binding.scanCamera.setOnClickListener { requestCameraPermission() }
+    }
+
+    private fun setupRecyclerView() {
+        adapter = HistoryListAdapter { history ->
+            if (isBookmarked(history)) {
+                removeBookmark(history)
+            } else {
+                addBookmark(history)
+            }
+        }
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@HomeFragment.adapter
+        }
+    }
+
+    private fun addBookmark(historyItem: AnalyzeHistory) {
+        historyItem.favorite = true
+        viewModel.updateHistory(historyItem)
+        showToast("Bookmark ditambahkan.")
+    }
+
+    private fun removeBookmark(historyItem: AnalyzeHistory) {
+        historyItem.favorite = false
+        viewModel.updateHistory(historyItem)
+        showToast("Bookmark dihapus.")
+    }
+
+    private fun isBookmarked(historyItem: AnalyzeHistory): Boolean {
+        return historyItem.favorite
     }
 
     private fun startGallery() {
@@ -52,46 +106,52 @@ class HomeFragment : Fragment() {
     ) { uri: Uri? ->
         if (uri != null) {
             currentImageUri = uri
-            startUCrop(uri) // Memulai UCrop setelah memilih gambar dari galeri
+            startUCrop(uri)
         } else {
-            Log.d("HomeFragment", "No media selected from gallery")
+            Log.d(TAG, "No media selected from gallery")
         }
     }
 
     private fun requestCameraPermission() {
         when {
-            ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
                 startCamera()
             }
+
             else -> {
                 cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
             }
         }
     }
 
-    private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            startCamera()
-        } else {
-            Toast.makeText(requireContext(), "Izin kamera diperlukan untuk mengambil foto", Toast.LENGTH_SHORT).show()
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                startCamera()
+            } else {
+                showToast("Izin kamera diperlukan untuk mengambil foto.")
+            }
         }
-    }
 
     private fun startCamera() {
         val uri = createImageUri()
         uri?.let {
             currentImageUri = it
             cameraLauncher.launch(it)
-        }
+        } ?: showToast("Gagal membuat URI untuk gambar.")
     }
 
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
-        if (success && currentImageUri != null) {
-            startUCrop(currentImageUri!!) // Memulai UCrop setelah mengambil gambar dari kamera
-        } else {
-            Log.d("HomeFragment", "Image capture failed or canceled")
+    private val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
+            if (success && currentImageUri != null) {
+                startUCrop(currentImageUri!!)
+            } else {
+                Log.d(TAG, "Image capture failed or canceled")
+            }
         }
-    }
 
     private fun startUCrop(sourceUri: Uri) {
         val destinationUri = Uri.fromFile(File(requireContext().cacheDir, "cropped_image.jpg"))
@@ -107,7 +167,7 @@ class HomeFragment : Fragment() {
         if (requestCode == UCrop.REQUEST_CROP && resultCode == AppCompatActivity.RESULT_OK) {
             val resultUri = UCrop.getOutput(data!!)
             resultUri?.let {
-                navigateToAnalyzeFragment(it) // Mengirim URI hasil crop ke AnalyzeFragment
+                navigateToAnalyzeFragment(it)
             } ?: showToast("Failed to crop image")
         } else if (resultCode == UCrop.RESULT_ERROR) {
             val cropError = UCrop.getError(data!!)
@@ -117,7 +177,7 @@ class HomeFragment : Fragment() {
 
     private fun navigateToAnalyzeFragment(uri: Uri) {
         val action = HomeFragmentDirections.actionHomeToAnalyze(uri.toString())
-        findNavController().navigate(action) // Menggunakan NavController dan SafeArgs untuk navigasi
+        findNavController().navigate(action)
     }
 
     private fun createImageUri(): Uri? {
@@ -125,7 +185,10 @@ class HomeFragment : Fragment() {
             put(MediaStore.Images.Media.DISPLAY_NAME, "captured_image_${System.currentTimeMillis()}.jpg")
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
-        return requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        return requireContext().contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
     }
 
     override fun onDestroyView() {

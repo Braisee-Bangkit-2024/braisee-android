@@ -1,4 +1,4 @@
-package com.braille.braisee.ui.adapter
+package com.braille.braisee.ui.detail
 
 import android.os.Bundle
 import android.view.LayoutInflater

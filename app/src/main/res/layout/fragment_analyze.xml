@@ -68,6 +68,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <ImageButton
         android:id="@+id/button_tts"
         android:layout_width="100dp"
@@ -76,14 +86,13 @@
         android:contentDescription="@string/analyze"
         android:src="@drawable/ic_sound"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button4"
         app:layout_constraintHorizontal_bias="0.456"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_result"
         app:layout_constraintVertical_bias="0.508" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/button_save"
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:background="@drawable/custom_baground"

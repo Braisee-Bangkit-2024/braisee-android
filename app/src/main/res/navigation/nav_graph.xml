@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/navigation_detail"
-        android:name="com.braille.braisee.ui.adapter.DetailFragment"
+        android:name="com.braille.braisee.ui.detail.DetailFragment"
         android:label="fragment_detail"
         tools:layout="@layout/fragment_detail" />
 

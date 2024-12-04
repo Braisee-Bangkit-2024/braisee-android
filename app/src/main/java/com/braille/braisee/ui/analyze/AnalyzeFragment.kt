@@ -9,10 +9,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.braille.braisee.data.AnalyzeHistory
+import com.braille.braisee.data.AnalyzeHistoryDao
+import com.braille.braisee.data.AppDatabase
 import com.braille.braisee.databinding.FragmentAnalyzeBinding
 import com.braille.braisee.helper.ImageClassifierHelper
+import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Locale
 
 class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
@@ -47,8 +53,13 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         val imageUriString = args.imageUri
         val imageUri = Uri.parse(imageUriString)
 
+
         // Menampilkan gambar yang dipilih
         displayImage(imageUri)
+
+        //  Inisialisasi DAO untuk mengakses riwayat analisis dari database
+        val database = AppDatabase.getDatabase(requireContext())
+        val analyzeDao = database.analyzeHistoryDao()
 
         // Inisialisasi ImageClassifierInterpreter
         imageClassifierHelper = ImageClassifierHelper(requireContext())
@@ -63,9 +74,52 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
             speakResult()
         }
 
-        binding.buttonSave.setOnClickListener {
+        binding.btnSave.setOnClickListener {
+            saveAnalyzeResult(analyzeDao)
         }
     }
+
+    private fun saveAnalyzeResult(analyzeHistoryDao: AnalyzeHistoryDao) {
+//        val imageUriString = arguments?.let { AnalyzeFragmentArgs.fromBundle(it).imageUri } ?: ""
+        val resultText = binding.tvResult.text.toString()
+        val uniqueImageUri = createUniqueImageUri()
+
+        // Pastikan gambar disalin ke file baru
+        val bitmap =
+            getBitmapFromUri(Uri.parse(arguments?.let { AnalyzeFragmentArgs.fromBundle(it).imageUri }))
+        bitmap?.let {
+            val outputStream = requireContext().contentResolver.openOutputStream(uniqueImageUri)
+            it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream!!)
+            outputStream?.close()
+        }
+
+        if (uniqueImageUri.toString().isNotEmpty() && resultText.isNotEmpty())  {
+            val history = AnalyzeHistory(
+                imageUri = uniqueImageUri.toString(),
+                result = resultText,
+                favorite = false
+            )
+
+            lifecycleScope.launch {
+                analyzeHistoryDao.insertHistory(history)
+                Toast.makeText(context, "Saved Analysis Results", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "Result Saved: $resultText")
+
+                // Menonaktifkan button Save ketika data sudah tersimpan ke Local
+                binding.btnSave.isEnabled = false
+            }
+        } else {
+            Toast.makeText(context, "No result to save.", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "No result to save.")
+        }
+    }
+
+    private fun createUniqueImageUri(): Uri {
+        val uniqueFileName = "cropped_image_${System.currentTimeMillis()}.jpg"
+        val file = File(requireContext().cacheDir, uniqueFileName)
+        return Uri.fromFile(file)
+    }
+
 
     private fun displayImage(imageUri: Uri) {
         binding.imageView2.setImageURI(imageUri)

@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.braille.braisee.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,22 +22,45 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Set up the navigation with the bottom navigation view
-        AppBarConfiguration(
-            setOf(R.id.navigation_home, R.id.navigation_learn, R.id.navigation_favorite)
+        // Konfigurasi AppBar dan BottomNavigationView
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.navigation_home,
+                R.id.navigation_learn,
+                R.id.navigation_favorite
+            )
         )
         binding.navView.setupWithNavController(navController)
 
-        // Add a listener to change the action bar visibility based on the destination
-        navController.addOnDestinationChangedListener { _, _, _ ->
-            supportActionBar?.show() // Tampilkan ActionBar untuk semua fragment
-            binding.navView.visibility = View.VISIBLE // Tampilkan BottomNavigationView untuk semua fragment
+        // Set listener untuk BottomNavigationView
+        binding.navView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> {
+                    navController.navigate(
+                        R.id.navigation_home, null,
+                        androidx.navigation.NavOptions.Builder()
+                            .setPopUpTo(R.id.navigation_analyze, true) // Hapus AnalyzeFragment dari stack
+                            .build()
+                    )
+                    true
+                }
+                R.id.navigation_learn -> {
+                    navController.navigate(R.id.navigation_learn)
+                    true
+                }
+                R.id.navigation_favorite -> {
+                    navController.navigate(R.id.navigation_favorite)
+                    true
+                }
+                else -> false
+            }
         }
 
-        // Handle the back button behavior
+        // Back button behavior
         onBackPressedDispatcher.addCallback(this) {
             if (navController.currentDestination?.id == R.id.navigation_home) {
                 showExitConfirmationDialog()

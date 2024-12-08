@@ -17,6 +17,9 @@ interface AnalyzeHistoryDao {
     @Query("SELECT * FROM analyze_history ORDER BY id DESC")
     fun getAllHistory(): LiveData<List<AnalyzeHistory>>
 
+    @Query("SELECT * FROM analyze_history WHERE id = :id ")
+    fun getHistoryById(id: Int): LiveData<AnalyzeHistory>
+
     @Query("SELECT * FROM analyze_history WHERE favorite = 1")
     fun getFavoriteHistory(): LiveData<List<AnalyzeHistory>>
 

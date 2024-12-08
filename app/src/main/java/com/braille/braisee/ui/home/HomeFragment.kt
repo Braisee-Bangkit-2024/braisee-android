@@ -46,8 +46,6 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
-
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,12 +61,9 @@ class HomeFragment : Fragment() {
             adapter.setData(historyList)
         }
 
-
         // Listener untuk tombol galeri dan kamera
         binding.scanGallery.setOnClickListener { startGallery() }
         binding.scanCamera.setOnClickListener { requestCameraPermission() }
-
-
     }
 
     private fun addBookmark(historyItem: AnalyzeHistory) {
@@ -89,13 +84,22 @@ class HomeFragment : Fragment() {
 
 
     private fun setupRecyclerView() {
-        adapter = HistoryListAdapter { history ->
-            if (isBookmarked(history)) {
-                removeBookmark(history)
-            } else {
-                addBookmark(history)
-            }
-        }
+        adapter = HistoryListAdapter(
+            onBookmarkClick = { history ->
+                if (isBookmarked(history)) {
+                    removeBookmark(history)
+                } else {
+                    addBookmark(history)
+                }
+            }, onItemClick = { historyItem ->
+                val action =
+                    HomeFragmentDirections.actionHomeToAnalyze(
+                        historyId = historyItem.id,
+                        result = historyItem.result,
+                        imageUri = historyItem.imageUri
+                    )
+                findNavController().navigate(action)
+            })
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -186,7 +190,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToAnalyzeFragment(uri: Uri) {
-        val action = HomeFragmentDirections.actionHomeToAnalyze(uri.toString())
+        val action = HomeFragmentDirections.actionHomeToAnalyze(
+            historyId = -1,
+            result = "",
+            imageUri = uri.toString()
+        )
         findNavController().navigate(action) // Menggunakan NavController dan SafeArgs untuk navigasi
     }
 
@@ -213,3 +221,4 @@ class HomeFragment : Fragment() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }
+

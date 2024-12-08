@@ -79,4 +79,7 @@ dependencies {
 
     implementation (libs.androidx.navigation.fragment.ktx.v280)
     implementation (libs.androidx.navigation.ui.ktx.v280)
+
+    implementation (libs.androidx.lifecycle.livedata.ktx)
+
 }

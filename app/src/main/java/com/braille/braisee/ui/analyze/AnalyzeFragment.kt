@@ -11,11 +11,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.braille.braisee.data.AnalyzeHistory
 import com.braille.braisee.data.AnalyzeHistoryDao
 import com.braille.braisee.data.AppDatabase
 import com.braille.braisee.databinding.FragmentAnalyzeBinding
+import com.braille.braisee.factory.ViewModelFactory
 import com.braille.braisee.helper.ImageClassifierHelper
 import kotlinx.coroutines.launch
 import java.io.File
@@ -45,6 +47,10 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Inisialisasi ViewModelFactory dan AnalyzeViewModel
+        val factory = ViewModelFactory.getInstance(requireContext())
+        viewModel = ViewModelProvider(this, factory)[AnalyzeViewModel::class.java]
+
         // Inisialisasi Text-to-Speech
         textToSpeech = TextToSpeech(requireContext(), this)
 
@@ -52,6 +58,18 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         val args = AnalyzeFragmentArgs.fromBundle(requireArguments())
         val imageUriString = args.imageUri
         val imageUri = Uri.parse(imageUriString)
+
+        val historyId = args.historyId
+
+        if (historyId != 1) {
+            loadHistoryItem(historyId)
+        } else {
+            val imageUri = Uri.parse(args.imageUri)
+            displayImage(imageUri)
+            binding.tvResult.text = args.result
+
+            binding.btnSave.isEnabled = false
+        }
 
 
         // Menampilkan gambar yang dipilih
@@ -93,7 +111,7 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
             outputStream?.close()
         }
 
-        if (uniqueImageUri.toString().isNotEmpty() && resultText.isNotEmpty())  {
+        if (uniqueImageUri.toString().isNotEmpty() && resultText.isNotEmpty()) {
             val history = AnalyzeHistory(
                 imageUri = uniqueImageUri.toString(),
                 result = resultText,
@@ -112,6 +130,23 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
             Toast.makeText(context, "No result to save.", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "No result to save.")
         }
+    }
+
+    private fun loadHistoryItem(historyId: Int) {
+        viewModel.getHistoryById(historyId).observe(viewLifecycleOwner){ history ->
+            if (history != null) {
+                val imageUri = Uri.parse(history.imageUri)
+                displayImage(imageUri)
+                binding.tvResult.text = history.result
+
+                // Disable tombol Save jika data sudah tersimpan
+                binding.btnSave.isEnabled = false
+            } else {
+                Toast.makeText(requireContext(), "Data not found", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
     }
 
     private fun createUniqueImageUri(): Uri {

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.braille.braisee.R
 import com.braille.braisee.databinding.FragmentFavoriteBinding
@@ -43,15 +44,22 @@ class FavoriteFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = HistoryListAdapter { historyItem ->
-            viewModel.toggleBookmark(historyItem)  // Menghapus dari favorite jika di-tap
-        }
+        adapter = HistoryListAdapter(
+            onBookmarkClick = { historyItem ->
+                viewModel.toggleBookmark(historyItem)  // Menghapus dari favorite jika di-tap
+            }, onItemClick = { historyItem ->
+                val action = FavoriteFragmentDirections.actionFavoriteToAnalyze(
+                    historyId = historyItem.id,
+                    result = historyItem.result,
+                    imageUri = historyItem.imageUri
+                )
+                findNavController().navigate(action)
+
+            })
 
         binding.rvFavorite.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@FavoriteFragment.adapter
         }
     }
-
-
 }

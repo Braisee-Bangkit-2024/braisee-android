@@ -12,16 +12,26 @@
         <action
             android:id="@+id/action_home_to_analyze"
             app:destination="@id/navigation_analyze" />
+
     </fragment>
+
 
     <fragment
         android:id="@+id/navigation_analyze"
         android:name="com.braille.braisee.ui.analyze.AnalyzeFragment"
         android:label="Analyze"
-        tools:layout="@layout/fragment_analyze" >
-    <argument
-        android:name="imageUri"
-        app:argType="string" />
+        tools:layout="@layout/fragment_analyze">
+        <argument
+            android:name="historyId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <argument
+            android:name="result"
+            app:argType="string" />
+        <argument
+            android:name="imageUri"
+            app:argType="string" />
+
     </fragment>
 
     <fragment
@@ -34,6 +44,11 @@
         android:id="@+id/navigation_favorite"
         android:name="com.braille.braisee.ui.favorite.FavoriteFragment"
         android:label="Favorite"
-        tools:layout="@layout/fragment_favorite" />
+        tools:layout="@layout/fragment_favorite">
+        <action
+            android:id="@+id/action_favorite_to_analyze"
+            app:destination="@id/navigation_analyze" />
+
+    </fragment>
 
 </navigation>

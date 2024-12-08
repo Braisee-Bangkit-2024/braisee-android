@@ -70,30 +70,39 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
     private fun classifyImage(imageUri: Uri) {
-        binding.progressBar.visibility = View.VISIBLE // Tampilkan progress bar
+        binding.progressBar.visibility = View.GONE // Tampilkan progress bar
         binding.tvResult.text = ""
 
-        // Jalankan dalam Coroutine
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Konversi URI menjadi file
                 val file = File(imageUri.path ?: "")
-                val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+
+                // Debugging: Cek keberadaan dan detail file
+                if (!file.exists()) {
+                    Log.e(TAG, "File tidak ditemukan: ${file.absolutePath}")
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                        binding.tvResult.text = "Error: File tidak ditemukan."
+                    }
+                    return@launch
+                }
+                Log.d(TAG, "File ditemukan: ${file.absolutePath}, ukuran: ${file.length()} bytes")
+
+                val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
                 val multipartBody = MultipartBody.Part.createFormData("image", file.name, requestBody)
 
                 // Panggil API
                 val response = ApiClient.apiService.postImage(multipartBody)
 
-                // Perbarui UI di thread utama
                 withContext(Dispatchers.Main) {
                     binding.progressBar.visibility = View.GONE
-                    binding.tvResult.text = response.character
+                    binding.tvResult.text = "Karakter: ${response.character}"
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     binding.progressBar.visibility = View.GONE
                     binding.tvResult.text = "Error: ${e.message}"
-                    Log.e(TAG, "Upload failed: ${e.message}")
+                    Log.e(TAG, "Upload failed: ${e.message}", e)
                 }
             }
         }

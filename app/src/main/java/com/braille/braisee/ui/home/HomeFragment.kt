@@ -154,10 +154,15 @@ class HomeFragment : Fragment() {
         }
 
     private fun startUCrop(sourceUri: Uri) {
-        val destinationUri = Uri.fromFile(File(requireContext().cacheDir, "cropped_image.jpg"))
+        // Membuat nama file dengan timestamp
+        val timestamp = System.currentTimeMillis()
+        val formattedDate = android.text.format.DateFormat.format("yyyyMMdd_HHmmss", timestamp)
+        val destinationFileName = "cropped_image_$formattedDate.jpg"
+
+        val destinationUri = Uri.fromFile(File(requireContext().cacheDir, destinationFileName))
         UCrop.of(sourceUri, destinationUri)
             .withAspectRatio(1f, 1f)
-            .withMaxResultSize(1000, 1000)
+            .withMaxResultSize(640, 640)
             .start(requireContext(), this)
     }
 

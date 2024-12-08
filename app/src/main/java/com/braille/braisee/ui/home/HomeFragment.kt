@@ -39,6 +39,10 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: HistoryListAdapter
 
+    companion object {
+        private const val TAG = "HomeFragment"
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,7 +66,6 @@ class HomeFragment : Fragment() {
         viewModel.allHistory.observe(viewLifecycleOwner) { historyList ->
             adapter.setData(historyList)
         }
-
 
         // Listener untuk tombol galeri dan kamera
         binding.scanGallery.setOnClickListener { startGallery() }
@@ -103,6 +106,37 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun setupRecyclerView() {
+        adapter = HistoryListAdapter { history ->
+            if (isBookmarked(history)) {
+                removeBookmark(history)
+            } else {
+                addBookmark(history)
+            }
+        }
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@HomeFragment.adapter
+        }
+    }
+
+    private fun addBookmark(historyItem: AnalyzeHistory) {
+        historyItem.favorite = true
+        viewModel.updateHistory(historyItem)
+        showToast("Bookmark ditambahkan.")
+    }
+
+    private fun removeBookmark(historyItem: AnalyzeHistory) {
+        historyItem.favorite = false
+        viewModel.updateHistory(historyItem)
+        showToast("Bookmark dihapus.")
+    }
+
+    private fun isBookmarked(historyItem: AnalyzeHistory): Boolean {
+        return historyItem.favorite
+    }
+
     private fun startGallery() {
         launcherGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
@@ -112,9 +146,9 @@ class HomeFragment : Fragment() {
     ) { uri: Uri? ->
         if (uri != null) {
             currentImageUri = uri
-            startUCrop(uri) // Memulai UCrop setelah memilih gambar dari galeri
+            startUCrop(uri)
         } else {
-            Log.d("HomeFragment", "No media selected from gallery")
+            Log.d(TAG, "No media selected from gallery")
         }
     }
 
@@ -151,7 +185,7 @@ class HomeFragment : Fragment() {
         uri?.let {
             currentImageUri = it
             cameraLauncher.launch(it)
-        }
+        } ?: showToast("Gagal membuat URI untuk gambar.")
     }
 
     private val cameraLauncher =
@@ -160,14 +194,20 @@ class HomeFragment : Fragment() {
                 startUCrop(currentImageUri!!) // Memulai UCrop setelah mengambil gambar dari kamera
             } else {
                 Log.d("HomeFragment", "Image capture failed or canceled")
+
             }
         }
 
     private fun startUCrop(sourceUri: Uri) {
-        val destinationUri = Uri.fromFile(File(requireContext().cacheDir, "cropped_image.jpg"))
+        // Membuat nama file dengan timestamp
+        val timestamp = System.currentTimeMillis()
+        val formattedDate = android.text.format.DateFormat.format("yyyyMMdd_HHmmss", timestamp)
+        val destinationFileName = "cropped_image_$formattedDate.jpg"
+
+        val destinationUri = Uri.fromFile(File(requireContext().cacheDir, destinationFileName))
         UCrop.of(sourceUri, destinationUri)
             .withAspectRatio(1f, 1f)
-            .withMaxResultSize(1000, 1000)
+            .withMaxResultSize(640, 640)
             .start(requireContext(), this)
     }
 
@@ -177,7 +217,7 @@ class HomeFragment : Fragment() {
         if (requestCode == UCrop.REQUEST_CROP && resultCode == AppCompatActivity.RESULT_OK) {
             val resultUri = UCrop.getOutput(data!!)
             resultUri?.let {
-                navigateToAnalyzeFragment(it) // Mengirim URI hasil crop ke AnalyzeFragment
+                navigateToAnalyzeFragment(it)
             } ?: showToast("Failed to crop image")
         } else if (resultCode == UCrop.RESULT_ERROR) {
             val cropError = UCrop.getError(data!!)
@@ -187,7 +227,7 @@ class HomeFragment : Fragment() {
 
     private fun navigateToAnalyzeFragment(uri: Uri) {
         val action = HomeFragmentDirections.actionHomeToAnalyze(uri.toString())
-        findNavController().navigate(action) // Menggunakan NavController dan SafeArgs untuk navigasi
+        findNavController().navigate(action)
     }
 
     private fun createImageUri(): Uri? {

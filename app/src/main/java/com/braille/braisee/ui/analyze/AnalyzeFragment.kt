@@ -1,7 +1,5 @@
 package com.braille.braisee.ui.analyze
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -18,6 +16,16 @@ import com.braille.braisee.data.AppDatabase
 import com.braille.braisee.databinding.FragmentAnalyzeBinding
 import com.braille.braisee.helper.ImageClassifierHelper
 import kotlinx.coroutines.launch
+import com.braille.braisee.api.ApiClient
+import com.braille.braisee.databinding.FragmentAnalyzeBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.util.Locale
 
@@ -26,7 +34,6 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
     private var _binding: FragmentAnalyzeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var imageClassifierHelper: ImageClassifierHelper
     private lateinit var textToSpeech: TextToSpeech
     private lateinit var viewModel: AnalyzeViewModel
 
@@ -48,7 +55,7 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         // Inisialisasi Text-to-Speech
         textToSpeech = TextToSpeech(requireContext(), this)
 
-        // Menggunakan SafeArgs untuk mengambil imageUri yang diteruskan dari HomeFragment
+        // Mendapatkan URI gambar dari SafeArgs
         val args = AnalyzeFragmentArgs.fromBundle(requireArguments())
         val imageUriString = args.imageUri
         val imageUri = Uri.parse(imageUriString)
@@ -65,6 +72,7 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         imageClassifierHelper = ImageClassifierHelper(requireContext())
 
         // Ketika tombol analisis ditekan
+
         binding.buttonAnalyz.setOnClickListener {
             classifyImage(imageUri)
         }
@@ -125,30 +133,51 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         binding.imageView2.setImageURI(imageUri)
     }
 
+    private fun classifyImage(imageUri: Uri) {
+        binding.progressBar.visibility = View.GONE // Tampilkan progress bar
+        binding.tvResult.text = ""
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val file = File(imageUri.path ?: "")
+
+                // Debugging: Cek keberadaan dan detail file
+                if (!file.exists()) {
+                    Log.e(TAG, "File tidak ditemukan: ${file.absolutePath}")
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                        binding.tvResult.text = "Error: File tidak ditemukan."
+                    }
+                    return@launch
+                }
+                Log.d(TAG, "File ditemukan: ${file.absolutePath}, ukuran: ${file.length()} bytes")
+
+                val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+                val multipartBody = MultipartBody.Part.createFormData("image", file.name, requestBody)
+
+                // Panggil API
+                val response = ApiClient.apiService.postImage(multipartBody)
+
+                withContext(Dispatchers.Main) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.tvResult.text = "Karakter: ${response.character}"
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.tvResult.text = "Error: ${e.message}"
+                    Log.e(TAG, "Upload failed: ${e.message}", e)
+                }
+            }
+        }
+    }
+
     private fun speakResult() {
         val resultText = binding.tvResult.text.toString()
         if (resultText.isNotEmpty()) {
             textToSpeech.speak(resultText, TextToSpeech.QUEUE_FLUSH, null, null)
         } else {
             Log.d(TAG, "No text to speak.")
-        }
-    }
-
-    private fun classifyImage(imageUri: Uri) {
-        val bitmap = getBitmapFromUri(imageUri)
-        bitmap?.let {
-            val result = imageClassifierHelper.classifyImage(it)
-            binding.tvResult.text = result
-        }
-    }
-
-    private fun getBitmapFromUri(imageUri: Uri): Bitmap? {
-        return try {
-            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
-            inputStream?.let { BitmapFactory.decodeStream(it) }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting bitmap from URI: ${e.message}")
-            null
         }
     }
 
@@ -177,6 +206,5 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
             textToSpeech.stop()
             textToSpeech.shutdown()
         }
-        imageClassifierHelper.close() // Menutup model saat fragment dihancurkan
     }
 }

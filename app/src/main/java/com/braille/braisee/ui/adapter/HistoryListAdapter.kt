@@ -1,7 +1,10 @@
 package com.braille.braisee.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.braille.braisee.R
 import com.braille.braisee.data.AnalyzeHistory
@@ -18,12 +21,10 @@ class HistoryListAdapter(private var onBookmarkClick: (AnalyzeHistory) -> Unit) 
         fun bind(history: AnalyzeHistory) {
             binding.tvDescription.text = history.result
 
-
             Glide.with(itemView.context)
                 .load(history.imageUri)
                 .error(R.drawable.baseline_placeholder_empty_24)
                 .into(binding.ivImageLogo)
-
 
             binding.ivBookmark.setImageResource(
                 if (history.favorite) R.drawable.baseline_favorite_24
@@ -53,4 +54,5 @@ class HistoryListAdapter(private var onBookmarkClick: (AnalyzeHistory) -> Unit) 
         history.addAll(newData.take(20))
         notifyDataSetChanged()
     }
+
 }

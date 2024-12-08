@@ -2,12 +2,10 @@ package com.braille.braisee.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.braille.braisee.R
 import com.braille.braisee.data.AnalyzeHistory
 import com.braille.braisee.databinding.ListHistoryBinding
-import com.braille.braisee.ui.home.HomeFragmentDirections
 import com.bumptech.glide.Glide
 
 class HistoryListAdapter(
@@ -39,7 +37,7 @@ class HistoryListAdapter(
             }
 
             itemView.setOnClickListener {
-                onItemClick(history)
+               onItemClick(history)
             }
         }
 

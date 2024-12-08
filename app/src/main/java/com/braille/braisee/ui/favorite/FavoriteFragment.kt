@@ -62,4 +62,6 @@ class FavoriteFragment : Fragment() {
             adapter = this@FavoriteFragment.adapter
         }
     }
+
+
 }

@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.media3.common)
     implementation(libs.androidx.paging.common.android)
     implementation (libs.tensorflow.lite.task.vision.v040)
+    implementation(libs.support.annotations)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,6 +69,10 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
+
+    // Coroutines
+    implementation (libs.kotlinx.coroutines.core)
+    implementation (libs.kotlinx.coroutines.android)
 
     implementation (libs.ucrop)
     implementation(libs.coil)

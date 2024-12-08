@@ -38,7 +38,11 @@
         android:id="@+id/navigation_learn"
         android:name="com.braille.braisee.ui.learn.LearnFragment"
         android:label="Learn"
-        tools:layout="@layout/fragment_learn" />
+        tools:layout="@layout/fragment_learn" >
+        <action
+            android:id="@+id/action_navigation_learn_to_detailFragment"
+            app:destination="@id/navigation_detail" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_favorite"
@@ -50,5 +54,11 @@
             app:destination="@id/navigation_analyze" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_detail"
+        android:name="com.braille.braisee.ui.detail.DetailFragment"
+        android:label="fragment_detail"
+        tools:layout="@layout/fragment_detail" />
 
 </navigation>

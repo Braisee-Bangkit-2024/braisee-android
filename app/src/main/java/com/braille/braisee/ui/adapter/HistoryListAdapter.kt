@@ -20,9 +20,12 @@ class HistoryListAdapter(private var onBookmarkClick: (AnalyzeHistory) -> Unit) 
         RecyclerView.ViewHolder(binding.root) {
         fun bind(history: AnalyzeHistory) {
             binding.tvDescription.text = history.result
+
             Glide.with(itemView.context)
                 .load(history.imageUri)
+                .error(R.drawable.baseline_placeholder_empty_24)
                 .into(binding.ivImageLogo)
+
             binding.ivBookmark.setImageResource(
                 if (history.favorite) R.drawable.baseline_favorite_24
                 else R.drawable.heart
@@ -48,9 +51,8 @@ class HistoryListAdapter(private var onBookmarkClick: (AnalyzeHistory) -> Unit) 
 
     fun setData(newData: List<AnalyzeHistory>) {
         history.clear()
-        history.addAll(newData)
+        history.addAll(newData.take(20))
         notifyDataSetChanged()
     }
-
 
 }

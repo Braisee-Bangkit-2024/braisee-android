@@ -17,10 +17,14 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.braille.braisee.data.AnalyzeHistory
+import com.braille.braisee.data.AnalyzeHistoryDao
+import com.braille.braisee.data.AnalyzeRepo
 import com.braille.braisee.databinding.FragmentHomeBinding
 import com.braille.braisee.factory.ViewModelFactory
 import com.braille.braisee.ui.adapter.HistoryListAdapter
@@ -39,12 +43,15 @@ class HomeFragment : Fragment() {
         private const val TAG = "HomeFragment"
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,7 +59,6 @@ class HomeFragment : Fragment() {
 
         val factory = ViewModelFactory.getInstance(requireContext())
         viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
-
         // Setup RecyclerView
         setupRecyclerView()
 
@@ -64,6 +70,40 @@ class HomeFragment : Fragment() {
         // Listener untuk tombol galeri dan kamera
         binding.scanGallery.setOnClickListener { startGallery() }
         binding.scanCamera.setOnClickListener { requestCameraPermission() }
+
+
+    }
+
+    private fun addBookmark(historyItem: AnalyzeHistory) {
+        historyItem.favorite = true
+        viewModel.updateHistory(historyItem)
+        showToast("Bookmark ditambahkan.")
+    }
+
+    private fun removeBookmark(historyItem: AnalyzeHistory) {
+        historyItem.favorite = false
+        viewModel.updateHistory(historyItem)
+        showToast("Bookmark dihapus.")
+    }
+
+    private fun isBookmarked(historyItem: AnalyzeHistory): Boolean {
+        return historyItem.favorite
+    }
+
+
+    private fun setupRecyclerView() {
+        adapter = HistoryListAdapter { history ->
+            if (isBookmarked(history)) {
+                removeBookmark(history)
+            } else {
+                addBookmark(history)
+            }
+        }
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@HomeFragment.adapter
+        }
     }
 
     private fun setupRecyclerView() {
@@ -132,7 +172,11 @@ class HomeFragment : Fragment() {
             if (isGranted) {
                 startCamera()
             } else {
-                showToast("Izin kamera diperlukan untuk mengambil foto.")
+                Toast.makeText(
+                    requireContext(),
+                    "Izin kamera diperlukan untuk mengambil foto",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -147,9 +191,10 @@ class HomeFragment : Fragment() {
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
             if (success && currentImageUri != null) {
-                startUCrop(currentImageUri!!)
+                startUCrop(currentImageUri!!) // Memulai UCrop setelah mengambil gambar dari kamera
             } else {
-                Log.d(TAG, "Image capture failed or canceled")
+                Log.d("HomeFragment", "Image capture failed or canceled")
+
             }
         }
 
@@ -187,7 +232,10 @@ class HomeFragment : Fragment() {
 
     private fun createImageUri(): Uri? {
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "captured_image_${System.currentTimeMillis()}.jpg")
+            put(
+                MediaStore.Images.Media.DISPLAY_NAME,
+                "captured_image_${System.currentTimeMillis()}.jpg"
+            )
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
         return requireContext().contentResolver.insert(

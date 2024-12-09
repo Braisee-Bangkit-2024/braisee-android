@@ -28,10 +28,12 @@
         android:theme="@style/Theme.BraiSee"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.detail.DetailActivity"
             android:exported="false"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="unspecified" />
+            android:configChanges="orientation|screenSize"/>
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="fullSensor"
@@ -45,7 +47,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

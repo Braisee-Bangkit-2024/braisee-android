@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.braille.braisee.data.AnalyzeRepo
 import com.braille.braisee.data.AppDatabase
 import com.braille.braisee.data.Injection
+import com.braille.braisee.ui.analyze.AnalyzeViewModel
 import com.braille.braisee.ui.favorite.FavoriteViewModel
 import com.braille.braisee.ui.home.HomeViewModel
 
@@ -35,6 +36,10 @@ class ViewModelFactory(private val repository: AnalyzeRepo) : ViewModelProvider.
 
             modelClass.isAssignableFrom(FavoriteViewModel::class.java) -> {
                 FavoriteViewModel(repository) as T
+            }
+
+            modelClass.isAssignableFrom(AnalyzeViewModel::class.java) -> {
+                AnalyzeViewModel(repository) as T
             }
 
             else -> throw IllegalArgumentException("Unknown ViewModel class" + modelClass.name)

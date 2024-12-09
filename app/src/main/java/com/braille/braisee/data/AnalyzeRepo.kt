@@ -24,6 +24,9 @@ class AnalyzeRepo(private val analyzeHistoryDao: AnalyzeHistoryDao) {
         return analyzeHistoryDao.getFavoriteHistory()
     }
 
+    fun getHistoryById(id: Int) = analyzeHistoryDao.getHistoryById(id)
+
+
 
 
     fun checkIsFavorite(id: String){

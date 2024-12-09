@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.media3.common)
     implementation(libs.androidx.paging.common.android)
     implementation (libs.tensorflow.lite.task.vision.v040)
+    implementation(libs.support.annotations)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -83,4 +84,7 @@ dependencies {
 
     implementation (libs.androidx.navigation.fragment.ktx.v280)
     implementation (libs.androidx.navigation.ui.ktx.v280)
+
+    implementation (libs.androidx.lifecycle.livedata.ktx)
+
 }

@@ -8,8 +8,8 @@ import retrofit2.http.Part
 
 interface ApiService {
     @Multipart
-    @POST("process")
+    @POST("predict")
     suspend fun postImage(
-        @Part image: MultipartBody.Part,
+        @Part file: MultipartBody.Part,
     ): ApiResponse
 }

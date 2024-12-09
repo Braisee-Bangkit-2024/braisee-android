@@ -4,6 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class ApiResponse(
 
-    @field:SerializedName("character")
-    val character: String
+    @field:SerializedName("predicted_text")
+    val character: List<String>
 )

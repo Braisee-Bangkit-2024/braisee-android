@@ -1,7 +1,10 @@
 package com.braille.braisee.ui.analyze
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -18,7 +21,6 @@ import com.braille.braisee.data.AnalyzeHistoryDao
 import com.braille.braisee.data.AppDatabase
 import com.braille.braisee.databinding.FragmentAnalyzeBinding
 import com.braille.braisee.factory.ViewModelFactory
-import com.braille.braisee.helper.ImageClassifierHelper
 import kotlinx.coroutines.launch
 import com.braille.braisee.api.ApiClient
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +37,6 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
     private var _binding: FragmentAnalyzeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var imageClassifierHelper: ImageClassifierHelper
     private lateinit var textToSpeech: TextToSpeech
     private lateinit var viewModel: AnalyzeViewModel
 
@@ -86,11 +87,8 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         val database = AppDatabase.getDatabase(requireContext())
         val analyzeDao = database.analyzeHistoryDao()
 
-        // Inisialisasi ImageClassifierInterpreter
-        imageClassifierHelper = ImageClassifierHelper(requireContext())
 
         // Ketika tombol analisis ditekan
-
         binding.buttonAnalyz.setOnClickListener {
             classifyImage(imageUri)
         }
@@ -163,13 +161,18 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         return Uri.fromFile(file)
     }
 
-
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
     private fun displayImage(imageUri: Uri) {
         binding.imageView2.setImageURI(imageUri)
     }
 
     private fun classifyImage(imageUri: Uri) {
-        binding.progressBar.visibility = View.GONE // Tampilkan progress bar
+        binding.progressBar.visibility = View.VISIBLE
         binding.tvResult.text = ""
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -188,21 +191,37 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
                 Log.d(TAG, "File ditemukan: ${file.absolutePath}, ukuran: ${file.length()} bytes")
 
                 val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
-                val multipartBody =
-                    MultipartBody.Part.createFormData("image", file.name, requestBody)
+                val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestBody)
 
-                // Panggil API
-                val response = ApiClient.apiService.postImage(multipartBody)
+                // Panggil API dengan menambahkan pengecekan konektivitas
+                if (context?.let { isNetworkAvailable(it) } == true) {
+                    try {
+                        // Panggil API
+                        val response = ApiClient.apiService.postImage(multipartBody)
 
-                withContext(Dispatchers.Main) {
-                    binding.progressBar.visibility = View.GONE
-                    binding.tvResult.text = "Karakter: ${response.character}"
+                        // Update UI setelah API selesai
+                        withContext(Dispatchers.Main) {
+                            binding.progressBar.visibility = View.GONE
+                            binding.tvResult.text = response.character.joinToString("")
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            binding.progressBar.visibility = View.GONE
+                            binding.tvResult.text = "Maaf Ada masalah pada Server."
+                            Log.e(TAG, "API request failed: ${e.message}", e)
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                        binding.tvResult.text = "Error TIdak Ada Internet."
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     binding.progressBar.visibility = View.GONE
                     binding.tvResult.text = "Error: ${e.message}"
-                    Log.e(TAG, "Upload failed: ${e.message}", e)
+                    Log.e(TAG, "Error during file handling or API request: ${e.message}", e)
                 }
             }
         }

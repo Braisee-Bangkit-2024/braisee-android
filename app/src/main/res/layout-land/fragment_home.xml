@@ -69,8 +69,9 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="400dp"
-        android:layout_height="350dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginBottom="?attr/actionBarSize"
         android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -81,7 +82,7 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
+            android:layout_marginBottom="?attr/actionBarSize"
             android:padding="8dp"
             tools:itemCount="20"
             tools:listitem="@layout/list_history" />

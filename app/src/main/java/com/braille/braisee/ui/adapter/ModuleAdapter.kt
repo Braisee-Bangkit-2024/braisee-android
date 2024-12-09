@@ -31,7 +31,7 @@ class ModuleAdapter(private val listModule: ArrayList<Module>) :
             val bundle = Bundle().apply {
                 putParcelable("module", module)
             }
-            it.findNavController().navigate(R.id.action_navigation_learn_to_detailFragment, bundle)
+            it.findNavController().navigate(R.id.action_navigation_learn_to_detailActivity, bundle)
         }
     }
 

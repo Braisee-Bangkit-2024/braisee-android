@@ -30,8 +30,8 @@
         android:label="Learn"
         tools:layout="@layout/fragment_learn" >
         <action
-            android:id="@+id/action_navigation_learn_to_detailFragment"
-            app:destination="@id/navigation_detail" />
+            android:id="@+id/action_navigation_learn_to_detailActivity"
+            app:destination="@id/detailActivity" />
     </fragment>
 
     <fragment
@@ -40,10 +40,10 @@
         android:label="Favorite"
         tools:layout="@layout/fragment_favorite" />
 
-    <fragment
-        android:id="@+id/navigation_detail"
-        android:name="com.braille.braisee.ui.detail.DetailFragment"
-        android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+    <activity
+        android:id="@+id/detailActivity"
+        android:name="com.braille.braisee.ui.detail.DetailActivity"
+        android:label="activity_detail"
+        tools:layout="@layout/activity_detail" />
 
 </navigation>

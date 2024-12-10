@@ -1,9 +1,10 @@
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:fitsSystemWindows="true"
     android:layout_marginBottom="?attr/actionBarSize"
     tools:context=".ui.analyze.AnalyzeFragment">
 
@@ -11,65 +12,67 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="22dp"
-        android:layout_marginTop="39dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
         android:text="@string/preview"
-        android:theme="@style/TextFontBold"
         android:textColor="@color/blue"
+        android:theme="@style/TextFontBold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.038" />
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="250dp"
-        android:layout_height="200dp"
-        android:layout_margin="10dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:contentDescription="@string/scan"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.067"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        android:contentDescription="@string/scan"
-        tools:src="@tools:sample/avatars"/>
+        tools:src="@tools:sample/avatars" />
 
     <Button
         android:id="@+id/button_analyz"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="20dp"
         android:background="@drawable/custom_button"
         android:text="@string/analyze"
         android:textColor="@color/blue"
         android:theme="@style/TextFontBold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_tts"
+        app:layout_constraintHorizontal_bias="0.285"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView2"
+        app:layout_constraintVertical_bias="0.12" />
 
     <TextView
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="@string/result"
-        android:theme="@style/TextFontBold"
         android:textColor="@color/blue"
+        android:theme="@style/TextFontBold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.062"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_analyz" />
+        app:layout_constraintHorizontal_bias="0.266"
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.051" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:id="@+id/cardView2"
+        android:layout_width="350dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/white"
         app:cardCornerRadius="20dp"
         app:cardElevation="10dp"
-        android:background="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.589"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.659"
+        app:layout_constraintStart_toEndOf="@+id/imageView2"
         app:layout_constraintTop_toBottomOf="@+id/textView6">
 
         <TextView
@@ -78,7 +81,6 @@
             android:layout_height="match_parent"
             android:background="@android:color/white"
             android:padding="10dp"
-            android:fontFamily="@font/poppins_light"
             android:textColor="@android:color/black" />
 
         <ProgressBar
@@ -92,32 +94,29 @@
 
     <ImageButton
         android:id="@+id/button_tts"
-        android:layout_width="70dp"
+        android:layout_width="100dp"
         android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginEnd="72dp"
         android:background="@drawable/custom_baground"
         android:contentDescription="@string/analyze"
         android:src="@drawable/ic_sound"
+        app:layout_constraintBottom_toBottomOf="@+id/button_analyz"
         app:layout_constraintEnd_toStartOf="@+id/btn_save"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+        app:layout_constraintTop_toTopOf="@+id/button_analyz" />
 
     <Button
         android:id="@+id/btn_save"
-        android:layout_width="200dp"
+        android:layout_width="225dp"
         android:layout_height="50dp"
+        android:layout_marginEnd="28dp"
         android:background="@drawable/custom_baground"
         android:drawable="@drawable/ic_sound"
         android:text="@string/save"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
         android:textColor="@color/blue"
         android:theme="@style/TextFontBold"
         app:layout_constraintBottom_toBottomOf="@+id/button_tts"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/button_tts"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="@+id/button_tts" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

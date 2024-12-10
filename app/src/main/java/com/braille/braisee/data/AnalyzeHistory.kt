@@ -14,5 +14,5 @@ data class AnalyzeHistory(
     val id: Int = 0,
     val imageUri: String,
     val result: String,
-    val favorite: Boolean
+    var favorite: Boolean
 ): Parcelable

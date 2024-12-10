@@ -46,28 +46,20 @@
     </string-array>
 
     <string-array name="list_deskripsi">
-        <item>Pemblajaran Tentang apa itu braile</item>
-        <item>Pemblajaran Tentang jenis braile</item>
-        <item>Pemblajaran Tentang apa itu braile</item>
-        <item>Pemblajaran Tentang apa itu braile</item>
-        <item>Pemblajaran Tentang apa itu braile</item>
+        <item>Pemblajaran Tentang Sejarah Braille</item>
+        <item>Pemblajaran Tentang Braille Part 1</item>
+        <item>Pemblajaran Tentang Braille Part 2</item>
+        <item>Pemblajaran Tentang Braille Part 3</item>
+        <item>Pemblajaran Tentang Braille Part 4</item>
     </string-array>
 
     <string-array name="list_ytlink">
-        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
-        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
-        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
-        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
-        <item>https://www.youtube.com/watch?v=NQD0wdXdVLU</item>
+        <item>https://youtube.com/watch?v=iIV6hE4F7YM</item>
+        <item>https://www.youtube.com/watch?v=BWturCsarH4</item>
+        <item>https://www.youtube.com/watch?v=zc9WAK74IPo</item>
+        <item>https://www.youtube.com/watch?v=87jV73R78gI</item>
+        <item>https://www.youtube.com/watch?v=Y3tBhY-y3Dg</item>
     </string-array>
-
-
-
-
-
-
-
-
 
 
 </resources>

@@ -28,7 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.util.Locale
 
@@ -114,7 +114,7 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         bitmap?.let {
             val outputStream = requireContext().contentResolver.openOutputStream(uniqueImageUri)
             it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream!!)
-            outputStream?.close()
+            outputStream.close()
         }
 
         if (uniqueImageUri.toString().isNotEmpty() && resultText.isNotEmpty()) {
@@ -135,6 +135,37 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
         } else {
             Toast.makeText(context, "No result to save.", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "No result to save.")
+        }
+    }
+    private fun compressImageFile(context: Context, originalUri: Uri, maxFileSize: Long = 1_000_000): File? {
+        return try {
+            val bitmap = getBitmapFromUri(originalUri) ?: return null
+            var quality = 100
+            val compressedFile: File
+
+            // Buat file sementara
+            val tempFile = File(context.cacheDir, "compressed_image_${System.currentTimeMillis()}.jpg")
+            do {
+                // Tulis bitmap ke file dengan kualitas tertentu
+                val outputStream = tempFile.outputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+                outputStream.close()
+
+                // Periksa ukuran file
+                if (tempFile.length() <= maxFileSize) {
+                    break
+                }
+
+                // Kurangi kualitas jika file terlalu besar
+                quality -= 5
+            } while (quality > 0)
+
+            // Jika hasil kompresi memenuhi syarat, kembalikan file tersebut
+            compressedFile = tempFile
+            compressedFile
+        } catch (e: Exception) {
+            Log.e(TAG, "Error compressing image: ${e.message}")
+            null
         }
     }
 
@@ -177,29 +208,26 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val file = File(imageUri.path ?: "")
+                val context = requireContext()
+                val compressedFile = compressImageFile(context, imageUri)
 
-                // Debugging: Cek keberadaan dan detail file
-                if (!file.exists()) {
-                    Log.e(TAG, "File tidak ditemukan: ${file.absolutePath}")
+                if (compressedFile == null || !compressedFile.exists()) {
                     withContext(Dispatchers.Main) {
                         binding.progressBar.visibility = View.GONE
-                        binding.tvResult.text = "Error: File tidak ditemukan."
+                        binding.tvResult.text = "Error: Gagal mengompres gambar."
                     }
                     return@launch
                 }
-                Log.d(TAG, "File ditemukan: ${file.absolutePath}, ukuran: ${file.length()} bytes")
 
-                val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
-                val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                Log.d(TAG, "File dikompresi: ${compressedFile.absolutePath}, ukuran: ${compressedFile.length()} bytes")
 
-                // Panggil API dengan menambahkan pengecekan konektivitas
-                if (context?.let { isNetworkAvailable(it) } == true) {
+                val requestBody = compressedFile.asRequestBody("image/*".toMediaTypeOrNull())
+                val multipartBody = MultipartBody.Part.createFormData("file", compressedFile.name, requestBody)
+
+                if (isNetworkAvailable(context)) {
                     try {
-                        // Panggil API
                         val response = ApiClient.apiService.postImage(multipartBody)
 
-                        // Update UI setelah API selesai
                         withContext(Dispatchers.Main) {
                             binding.progressBar.visibility = View.GONE
                             binding.tvResult.text = response.character.joinToString("")
@@ -214,7 +242,7 @@ class AnalyzeFragment : Fragment(), TextToSpeech.OnInitListener {
                 } else {
                     withContext(Dispatchers.Main) {
                         binding.progressBar.visibility = View.GONE
-                        binding.tvResult.text = "Error TIdak Ada Internet."
+                        binding.tvResult.text = "Error: Tidak Ada Internet."
                     }
                 }
             } catch (e: Exception) {
